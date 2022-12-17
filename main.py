@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sklearn as sk
 import sklearn.preprocessing as poly
 import statsmodels.api as sm
 import seaborn as sns
@@ -9,6 +10,7 @@ from sklearn import model_selection, linear_model, feature_selection, metrics
 from sklearn.linear_model import LinearRegression, Lasso, LogisticRegression
 from sklearn.metrics import mean_squared_error, accuracy_score, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def genConfusionMatrix(Y_test, Y_predict):
@@ -37,6 +39,24 @@ def randomForestRegression(X_train, Y_train, X_test, Y_test):
     random_forest_classifier.fit(X_train, Y_train)
     y_predict = random_forest_classifier.fit(X_test)
 
+def knn(X_train, Y_train, X_test, Y_test):
+    #making models
+    knn_model = KNeighborsClassifier(n_neighbors=1).fit(X_train, Y_train)
+    knn_5 = KNeighborsClassifier(n_neighbors=5).fit(X_train, Y_train)
+    knn_10 = KNeighborsClassifier(n_neighbors=10).fit(X_train, Y_train)
+
+    #getting predictors
+    knn_preds = knn_model.predict(X_test)
+    knn_preds_5 = knn_5.predict(X_test)
+    knn_preds_10 = knn_10.predict(X_test)
+
+    #getting accuracy scores and printing
+    accuracy_score = sk.metrics.accuracy_score(Y_test, knn_preds)
+    accuracy_score5 = sk.metrics.accuracy_score(Y_test, knn_preds_5)
+    accuracy_score10 = sk.metrics.accuracy_score(Y_test, knn_preds_10)
+    print(accuracy_score)
+    print(accuracy_score5)
+    print(accuracy_score10)
 
 if __name__ == '__main__':
     # Data cleaning and feature creation
@@ -45,6 +65,10 @@ if __name__ == '__main__':
     health_data.dropna(inplace=True)
 
     print(health_data.columns)
+
+    #pairplot generation and display
+    sns.pairplot(health_data)
+    plt.show()
 
     x = health_data.loc[:, ~health_data.columns.isin(['Hypertension', 'Diabetes', 'Stroke'])]
     y = health_data.loc[:, ['Diabetes']]
@@ -66,5 +90,8 @@ if __name__ == '__main__':
     print(scores)
 
     # KNN
+    knn(X_train, Y_train, X_test, Y_test)
+    scores = cross_val_score(knn, x, y, scoring="accuracy", cv=5)
 
+    print(scores)
     # RandomForest

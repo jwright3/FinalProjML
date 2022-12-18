@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import sklearn as sk
 import sklearn.preprocessing as poly
@@ -11,6 +12,7 @@ from sklearn.linear_model import LinearRegression, Lasso, LogisticRegression
 from sklearn.metrics import mean_squared_error, accuracy_score, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+matplotlib.use('TkAgg')
 
 
 def genConfusionMatrix(Y_test, Y_predict):
@@ -64,6 +66,10 @@ def knn(X_train, Y_train, X_test, Y_test):
     knn_preds = knn_model.predict(X_test)
     knn_preds_5 = knn_5.predict(X_test)
     knn_preds_10 = knn_10.predict(X_test)
+    genConfusionMatrix(Y_test, knn_preds)
+    genConfusionMatrix(Y_test, knn_preds_5)
+    genConfusionMatrix(Y_test, knn_preds_10)
+
 
     #getting accuracy scores and printing
     accuracy_score = sk.metrics.accuracy_score(Y_test, knn_preds)
@@ -80,10 +86,16 @@ if __name__ == '__main__':
     health_data.dropna(inplace=True)
 
     # print(health_data.columns)
+    cols = ['Age','Sex','HighChol','CholCheck','BMI','Smoker','HeartDiseaseorAttack','PhysActivity','Fruits','Veggies','HvyAlcoholConsump','GenHlth','MentHlth','PhysHlth','DiffWalk','Diabetes','Hypertension','Stroke']
+    [print(health_data[v].describe()) for v in cols]
+    delete_data = health_data.drop(health_data.index[10:85])
+    [print(delete_data[v].describe()) for v in cols]
+    df = health_data.corr()
+    df.to_csv(r'./file.csv', index=False)
 
     #pairplot generation and display
     sns.pairplot(health_data)
-    plt.show()
+    plt.savefig('pairplot.png')
 
     x = health_data.loc[:, ~health_data.columns.isin(['Hypertension', 'Diabetes', 'Stroke'])]
     y = health_data.loc[:, ['Diabetes']]

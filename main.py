@@ -34,10 +34,25 @@ def logRegression(X_train, Y_train, X_test, Y_test):
 
 
 def randomForestRegression(X_train, Y_train, X_test, Y_test):
-    random_forest_classifier = RandomForestClassifier(n_estimators=19)
+    Y_train = Y_train.values.ravel()
+    n_est_scores = []
+    n_est_values = []
+    for n_est in range(10, 400, 10):
+        random_forest_classifier = RandomForestClassifier(n_estimators=n_est)
 
-    random_forest_classifier.fit(X_train, Y_train)
-    y_predict = random_forest_classifier.fit(X_test)
+        random_forest_classifier.fit(X_train, Y_train)
+        y_predict = random_forest_classifier.predict(X_test)
+        score = sk.metrics.accuracy_score(Y_test, y_predict)
+        n_est_scores.append(score)
+        n_est_values.append(n_est)
+        print(f"n_est: {n_est} Score: {score}")
+
+    plt.plot(n_est_values, n_est_scores)
+    plt.title("Num Estimators Tuning")
+    plt.xlabel("num_estimators")
+    plt.ylabel("Score")
+    plt.grid()
+    plt.show()
 
 def knn(X_train, Y_train, X_test, Y_test):
     #making models
@@ -64,7 +79,7 @@ if __name__ == '__main__':
     health_data = pd.read_csv('./health_data.csv')
     health_data.dropna(inplace=True)
 
-    print(health_data.columns)
+    # print(health_data.columns)
 
     #pairplot generation and display
     sns.pairplot(health_data)
@@ -73,12 +88,12 @@ if __name__ == '__main__':
     x = health_data.loc[:, ~health_data.columns.isin(['Hypertension', 'Diabetes', 'Stroke'])]
     y = health_data.loc[:, ['Diabetes']]
 
-    print(x)
-    print(y)
-    print(health_data)
+    # print(x)
+    # print(health_data)
 
     X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.2)
 
+    
     # Algorithms
 
     # Logistic Regression
@@ -95,3 +110,4 @@ if __name__ == '__main__':
 
     print(scores)
     # RandomForest
+    randomForestRegression(X_train, Y_train, X_test, Y_test)
